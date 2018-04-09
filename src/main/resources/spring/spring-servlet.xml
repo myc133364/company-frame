@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:p="http://www.springframework.org/schema/p"
+	   	xmlns:aop="http://www.springframework.org/schema/aop" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd  
+            http://www.springframework.org/schema/mvc  
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd  
+            http://www.springframework.org/schema/context  
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd ">
+
+    <!-- 添加注解驱动 -->
+    <mvc:annotation-driven />
+    <mvc:default-servlet-handler/>
+    <!-- 对静态资源文件的访问  restful-->     
+    <mvc:resources mapping="/bootstrap/**" location="/static/bootstrap/" />
+    <mvc:resources mapping="/images/**" location="/static/images/" />
+    <mvc:resources mapping="/js/**" location="/static/js/" />
+    <mvc:resources mapping="/css/**" location="/static/css/" />
+    <mvc:resources mapping="/plug/**" location="/static/plug/" />
+    <mvc:resources mapping="/upload/**" location="file:/usr/local/tomcat/upload/" />
+    <!-- 默认扫描的包路径 -->
+    <context:component-scan base-package="com.hz" />
+
+
+    <!--  ================================== import sub-config file  ================================== -->
+    <import resource="spring-mybatis.xml" />
+    <!--  ================================== /import sub-config file  ================================== -->
+	
+	<!-- 启动对@AspectJ注解的支持 通知spring使用cglib而不是jdk的来生成代理方法 AOP可以拦截到Controller -->  
+	<aop:aspectj-autoproxy />
+    
+    <!-- ViewResolver For FreeMarker -->
+    <!--视图解释器 -->  
+	<bean id="viewResolver"  class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">  
+	    <property name="suffix">  
+	        <value>.html</value>  
+	    </property>  
+	    <property name="contentType" value="text/html;charset=UTF-8"></property>  
+	</bean>  
+    <!-- Freemarker配置 -->  
+	<bean id="freemarkerConfig"  
+	      class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">  
+	    <property name="templateLoaderPath" value="/WEB-INF/templates/" />  
+	    <property name="freemarkerSettings">  
+	        <props>  
+	            <prop key="template_update_delay">0</prop>  
+	            <prop key="default_encoding">UTF-8</prop>  
+	            <prop key="number_format">0.##########</prop>  
+	            <prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>  
+	            <prop key="date_format">yyyy-MM-dd</prop>  
+	            <prop key="classic_compatible">true</prop>  
+	            <prop key="template_exception_handler">ignore</prop>  
+	        </props>  
+	    </property>  
+	</bean>  
+    
+     <!-- SpringMVC上传文件时，需要配置MultipartResolver处理器 -->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+        <property name="defaultEncoding" value="UTF-8"/>  
+        <!-- 指定所上传文件的总大小不能超过20M。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->  
+        <property name="maxUploadSize" value="20971520"/>  
+    </bean>  
+      
+    <!-- SpringMVC在超出上传文件限制时，会抛出org.springframework.web.multipart.MaxUploadSizeExceededException -->  
+    <!-- 该异常是SpringMVC在检查上传的文件信息时抛出来的，而且此时还没有进入到Controller方法中 -->  
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+        <property name="exceptionMappings">  
+            <props>  
+                <!-- 遇到MaxUploadSizeExceededException异常时，自动跳转到/WEB-INF/jsp/error_fileupload.jsp页面 -->  
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error_fileupload</prop>  
+            </props>  
+        </property>  
+    </bean>  
+</beans>  

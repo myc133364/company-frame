@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>  
+<configuration scan="true" scanPeriod="30 seconds">
+	<!-- 输出到控制台 -->
+	<appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!-- <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{30} - %msg%n</pattern> -->
+			<pattern>%d{MM-dd HH:mm:ss} [%thread] %-5level %logger{30} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="ERR"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../../ERR-Fish.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 非当天的Log文件压缩备份为 archive/ldap-pwd.2014-08-10.zip -->
+			<fileNamePattern>../../archive_erro/ERR.%d{yyyy-MM-dd}.zip</fileNamePattern>
+			<!-- 超过60天的备份文件会被删除 -->
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+		<!-- 临界值过滤器，过滤掉低于指定临界值的日志。 -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>WARN</level>
+		</filter>
+		<encoder>
+			<Pattern>%d [%thread] %-5level %40logger{60} - %msg%n</Pattern>
+		</encoder>
+	</appender>
+	<appender name="INFO"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../../INFO-Fish.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- 非当天的Log文件压缩备份为 archive/ldap-pwd.2014-08-10.zip -->
+			<fileNamePattern>../../archive_info/info.%d{yyyy-MM-dd}.zip</fileNamePattern>
+			<!-- 超过30天的备份文件会被删除 -->
+			<maxHistory>60</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<Pattern>%d [%thread] %-5level %40logger{60} - %msg%n</Pattern>
+		</encoder>
+		<!-- 只打印info日志 -->
+		 <!-- 级别过滤器，根据日志级别进行过滤。如果日志级别等于配置级别，过滤器会根据onMath 和 onMismatch接收或拒绝日志 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter"> 
+            <level>INFO</level>  
+            <onMatch>ACCEPT</onMatch>  
+            <onMismatch>DENY</onMismatch>  
+        </filter>  
+	</appender>
+	
+    <root level="INFO">
+        <appender-ref ref="Console" />
+    </root>
+    <!--日志打印的包的范围，及分类日志文件存储 -->  
+    <logger name="com.hz.controller" additivity="false">  
+        <level value="DEBUG" />  
+        <appender-ref ref="Console"/>  
+        <appender-ref ref="ERR"/>  
+        <appender-ref ref="INFO" />  
+    </logger>  
+</configuration>
